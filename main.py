@@ -6,7 +6,8 @@ from torch.utils.data import DataLoader
 from torch.optim import Adam
 import torch.nn as nn 
 import matplotlib.pyplot as plt 
-from tqdm import tqdm
+from tqdm import tqdm #simulate merge conflict first
+from numpy import stack #simulate merge conflict second
 
 app = typer.Typer()
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
