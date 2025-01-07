@@ -1,7 +1,8 @@
 docs/site/
 
 models/
-
+data/raw/
+data/processed/
 # test cache
 manual_test/
 
