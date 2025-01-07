@@ -5,6 +5,18 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Visualize",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "args": [
+                "--model-checkpoint",
+                "models/model.pth"
+            ],
+            "justMyCode": true
+        },
+        {
             "name": "Evaluate",
             "type": "debugpy",
             "request": "launch",

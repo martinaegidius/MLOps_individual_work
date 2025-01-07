@@ -27,7 +27,7 @@ class MyAwesomeModel(nn.Module):
                     ("MaxPool",maxpool),
                     ("conv3",conv3),
                     ("Flatten",nn.Flatten(start_dim=1,end_dim=-1)),
-                    ("Classification head",nn.Linear(5184,10))
+                    ("classification_head",nn.Linear(5184,10))
                 ]
             )
         )
@@ -42,17 +42,12 @@ class MyAwesomeModel(nn.Module):
 if __name__=="__main__":
     import os 
     import torch 
-    data_dir = "/home/max/Documents/s194119/MLOps/dtu_mlops/s1_development_environment/exercise_files/final_exercise/data/corruptmnist_v1/"
-    sample = "train_images_0.pt"
-    f = data_dir+sample
-    images = torch.load(f)
-    print("images shape: ",images.shape)
-    images = images.unsqueeze(1)
-    print("images unsqueezed shape: ",images.shape)
     model = MyAwesomeModel()
     print(f"Model architecture: {model}")
     print(f"Number of parameters: {sum(p.numel() for p in model.parameters())}")
+    images = torch.randn(10,1,28,28)
+    print("input: ",images.shape)
     output = model(images)
-    print("output: ",output)
-    print("\n with shape: ",output.shape)
+    print("output: ",output.shape)
+    # print("\n with shape: ",output.shape)
 
