@@ -6,7 +6,9 @@ from torch.utils.data import DataLoader
 from torch.optim import Adam
 import torch.nn as nn 
 import matplotlib.pyplot as plt 
-from tqdm import tqdm
+from tqdm import tqdm #simulate merge conflict first
+import numpy as np #simulate merge conflict second
+from tqdm import tqdm #simulate merge conflict first
 import numpy as np #simulate merge conflict second
 
 app = typer.Typer()
