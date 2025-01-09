@@ -1,4 +1,4 @@
-import logging
+#import logging before loguru
 import os 
 
 import torch
@@ -11,9 +11,11 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 from omegaconf import DictConfig, OmegaConf
 import hydra
+from loguru import logger
 
 
-log = logging.getLogger(__name__)
+
+#log = logging.getLogger(__name__) #before loguru
 
 
 
@@ -23,7 +25,11 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.ba
 def train(cfg: DictConfig):
 #def train(lr: float = 1e-3, batch_size: int = 32, epochs: int = 2) -> None:
     """Train a model on MNIST."""
-    log.info("Training day and night")
+    hydra_path = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
+    # Add a log file to the logger
+    logger.add(os.path.join(hydra_path, "my_logger_hydra.log"))
+    logger.info(cfg)
+    logger.info("Training day and night")
     hyperparameters = cfg._group_.hyperparameters
     lr = hyperparameters.lr
     batch_size = hyperparameters.batch_size
@@ -32,7 +38,7 @@ def train(cfg: DictConfig):
 
     torch.manual_seed(seed)
 
-    log.info(f"{lr=}, {batch_size=}, {epochs=}")
+    logger.info(f"{lr=}, {batch_size=}, {epochs=}")
 
     model = MyAwesomeModel().to(DEVICE)
     train_set, _ = corrupt_mnist()
@@ -61,12 +67,12 @@ def train(cfg: DictConfig):
             statistics["train_accuracy"].append(accuracy)
 
         epoch_loss = running_loss.item() / N_SAMPLES
-        log.info(f"Epoch {epoch}: {epoch_loss}")
+        logger.info(f"Epoch {epoch}: {epoch_loss}")
         statistics["train_loss"].append(epoch_loss)
 
-    log.info("Finished training")
+    logger.info("Finished training")
     torch.save(model.state_dict(), f"{os.getcwd()}/model.pth") #save to hydra output (hopefully using chdir true)
-    log.info(f"Saved model to: f{os.getcwd()}/model.pth")
+    logger.info(f"Saved model to: f{os.getcwd()}/model.pth")
     fig, axs = plt.subplots(1, 2, figsize=(15, 5))
     axs[0].plot(statistics["train_loss"])
     axs[0].set_title("Train loss")
