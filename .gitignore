@@ -10,6 +10,9 @@ manual_test/
 # other local dev info
 .vscode/
 
+#environment
+.env
+
 # Mac OS-specific storage files
 .DS_Store
 
