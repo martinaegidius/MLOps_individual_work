@@ -1,30 +1,47 @@
+import logging
+import os 
+
 import torch
 import typer
-from data import corrupt_mnist
-from model import MyAwesomeModel
+from mlops_individual.data import corrupt_mnist
+from mlops_individual.model import MyAwesomeModel
 from torch.utils.data import DataLoader
 from torch.optim import Adam
-import torch.nn as nn 
-import matplotlib.pyplot as plt 
-from tqdm import tqdm #simulate merge conflict first
-import numpy as np #simulate merge conflict second
+import torch.nn as nn
+import matplotlib.pyplot as plt
+from omegaconf import DictConfig, OmegaConf
+import hydra
+
+
+log = logging.getLogger(__name__)
+
+
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
-def train(lr: float = 1e-3, batch_size: int = 32, epochs: int = 2) -> None:
+@hydra.main(version_base=None, config_path="../../configs",config_name="config")
+def train(cfg: DictConfig):
+#def train(lr: float = 1e-3, batch_size: int = 32, epochs: int = 2) -> None:
     """Train a model on MNIST."""
-    print("Training day and night")
-    print(f"{lr=}, {batch_size=}, {epochs=}")
+    log.info("Training day and night")
+    hyperparameters = cfg._group_.hyperparameters
+    lr = hyperparameters.lr
+    batch_size = hyperparameters.batch_size
+    epochs = hyperparameters.epochs
+    seed = hyperparameters.seed
 
-    # TODO: Implement training loop here
+    torch.manual_seed(seed)
+
+    log.info(f"{lr=}, {batch_size=}, {epochs=}")
+
     model = MyAwesomeModel().to(DEVICE)
     train_set, _ = corrupt_mnist()
     N_SAMPLES = len(train_set)
-    trainloader = DataLoader(train_set,batch_size=batch_size,shuffle=True)
-    del train_set 
+    trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    del train_set
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = Adam(model.parameters(),lr=lr)
+    optimizer = Adam(model.parameters(), lr=lr)
 
     statistics = {"train_loss": [], "train_accuracy": []}
     for epoch in range(epochs):
@@ -32,29 +49,32 @@ def train(lr: float = 1e-3, batch_size: int = 32, epochs: int = 2) -> None:
         for images, labels in trainloader:
             images, labels = images.to(DEVICE), labels.to(DEVICE)
             logits = model(images)
-            loss = criterion(logits,labels)
+            loss = criterion(logits, labels)
             running_loss += loss
             loss.backward()
             optimizer.step()
             optimizer.zero_grad()
             running_loss += loss
-            
+
             statistics["train_loss"].append(loss.item())
             accuracy = (logits.argmax(dim=1) == labels).float().mean().item()
             statistics["train_accuracy"].append(accuracy)
 
-        epoch_loss = running_loss.item()/N_SAMPLES
-        print(f"Epoch {epoch}: {epoch_loss}")
+        epoch_loss = running_loss.item() / N_SAMPLES
+        log.info(f"Epoch {epoch}: {epoch_loss}")
         statistics["train_loss"].append(epoch_loss)
 
-    print("Finished training")
-    torch.save(model.state_dict(),"models/model.pth")
+    log.info("Finished training")
+    torch.save(model.state_dict(), f"{os.getcwd()}/model.pth") #save to hydra output (hopefully using chdir true)
+    log.info(f"Saved model to: f{os.getcwd()}/model.pth")
     fig, axs = plt.subplots(1, 2, figsize=(15, 5))
     axs[0].plot(statistics["train_loss"])
     axs[0].set_title("Train loss")
     axs[1].plot(statistics["train_accuracy"])
     axs[1].set_title("Train accuracy")
-    fig.savefig("reports/figures/training_statistics.png")
-
+    #fig.savefig("reports/figures/training_statistics.png") <- with no hydra configuration
+    fig.savefig(f"{os.getcwd()}/training_statistics.png")    
+    
 if __name__ == "__main__":
-    typer.run(train)
+    train()
+    #typer.run(train)

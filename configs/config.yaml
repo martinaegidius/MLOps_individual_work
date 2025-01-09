@@ -1,0 +1,10 @@
+#config.yaml
+hydra:
+  job: 
+    chdir: True
+    
+defaults:
+    - experiment: exp1
+    
+
+  
