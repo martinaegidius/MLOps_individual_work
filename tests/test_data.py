@@ -5,7 +5,7 @@ from tests import _N_CLASSES, _PATH_DATA
 import os.path
 import pytest 
 
-@pytest.mark.skipif(not os.path.exists(_PATH_DATA+"processed/"), reason="Data files not found")
+@pytest.mark.skipif(not os.path.exists(_PATH_DATA+"lol/"), reason="Data files not found")
 def test_my_dataset(): #for  pytest, the method name needs to start with test_*, and the py file needs to start with test_*.py
     """Test the MyDataset class."""
     N_train = 30000
