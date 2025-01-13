@@ -1,8 +1,8 @@
 from pathlib import Path
 import os
 import typer
-from torch.utils.data import Dataset, TensorDataset
 import torch
+from torch.utils.data import Dataset, TensorDataset
 from hydra.utils import to_absolute_path #for resolving paths as originally for loading data
 import matplotlib.pyplot as plt 
 

@@ -5,6 +5,8 @@ reports/
 models/
 data/raw/
 data/processed/
+tests/outputs/
+tests/output/
 # test cache
 manual_test/
 

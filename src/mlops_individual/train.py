@@ -13,7 +13,8 @@ from omegaconf import DictConfig, OmegaConf
 import hydra
 from hydra.utils import to_absolute_path
 from dotenv import load_dotenv
-    
+from hydra.core.hydra_config import HydraConfig
+
 from loguru import logger
 import wandb
 
@@ -34,7 +35,15 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.ba
 def train(cfg: DictConfig):
 #def train(lr: float = 1e-3, batch_size: int = 32, epochs: int = 2) -> None:
     """Train a model on MNIST."""
-    hydra_path = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
+    #print(cfg.hydra)
+    if HydraConfig.initialized():
+        hydra_path = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
+    else:
+        # Fallback for testing or other non-Hydra environments
+        hydra_path = "./tests/output/"
+
+    #hydra_path = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir #this line is error when unittesting
+    #hydra_path="" #this works
     # Add a log file to the logger
     hyperparameters = cfg._group_.hyperparameters
     lr = hyperparameters.lr
@@ -103,20 +112,37 @@ def train(cfg: DictConfig):
         wandb.log({"train_loss":epoch_loss})
 
     logger.info("Finished training")
-    torch.save(model.state_dict(), f"{os.getcwd()}/model.pth") #save to hydra output (hopefully using chdir true)
-    artifact = wandb.Artifact(name="model",type="model")
-    artifact.add_file(local_path=f"{os.getcwd()}/model.pth",name="model.pth")
-    artifact.save()
-    logger.info(f"Saved model to: f{os.getcwd()}/model.pth")
-    fig, axs = plt.subplots(1, 2, figsize=(15, 5))
-    axs[0].plot(statistics["train_loss"])
-    axs[0].set_title("Train loss")
-    axs[1].plot(statistics["train_accuracy"])
-    axs[1].set_title("Train accuracy")
-    #fig.savefig("reports/figures/training_statistics.png") <- with no hydra configuration
-    fig.savefig(f"{os.getcwd()}/training_statistics.png")   
-    wandb.log({"training statistics":wandb.Image(fig)}) #try to log an image 
-    
+    if HydraConfig.initialized():
+        torch.save(model.state_dict(), f"{os.getcwd()}/model.pth") #save to hydra output (hopefully using chdir true)
+        artifact = wandb.Artifact(name="model",type="model")
+        artifact.add_file(local_path=f"{os.getcwd()}/model.pth",name="model.pth")
+        artifact.save()
+        logger.info(f"Saved model to: f{os.getcwd()}/model.pth")
+        fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+        axs[0].plot(statistics["train_loss"])
+        axs[0].set_title("Train loss")
+        axs[1].plot(statistics["train_accuracy"])
+        axs[1].set_title("Train accuracy")
+        #fig.savefig("reports/figures/training_statistics.png") <- with no hydra configuration
+        fig.savefig(f"{os.getcwd()}/training_statistics.png")   
+        wandb.log({"training statistics":wandb.Image(fig)}) #try to log an image 
+    else: #fucked up way to fix hydra unittesting
+        os.makedirs(hydra_path+"models",exist_ok=True)
+        torch.save(model.state_dict(), f"{hydra_path}models/model.pth") #save to hydra output (hopefully using chdir true)
+        artifact = wandb.Artifact(name="model",type="model")
+        artifact.add_file(local_path=f"{hydra_path}models/model.pth",name="model.pth")
+        artifact.save()
+        logger.info(f"Saved model to: {hydra_path}models/model.pth/model.pth")
+        fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+        axs[0].plot(statistics["train_loss"])
+        axs[0].set_title("Train loss")
+        axs[1].plot(statistics["train_accuracy"])
+        axs[1].set_title("Train accuracy")
+        #fig.savefig("reports/figures/training_statistics.png") <- with no hydra configuration
+        fig.savefig(f"{hydra_path}/training_statistics.png")   
+        wandb.log({"training statistics":wandb.Image(fig)}) #try to log an image 
+
+        
 if __name__ == "__main__":
     train()
     #typer.run(train)
