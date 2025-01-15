@@ -7,7 +7,8 @@ data/raw/
 data/processed/
 tests/outputs/
 tests/output/
-gcloud_vertex/
+gcloud_vertex/*.yaml
+gcloud_vertex/config_cpu.yaml
 # test cache
 manual_test/
 
