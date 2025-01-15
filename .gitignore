@@ -7,6 +7,7 @@ data/raw/
 data/processed/
 tests/outputs/
 tests/output/
+gcloud_vertex/
 # test cache
 manual_test/
 
