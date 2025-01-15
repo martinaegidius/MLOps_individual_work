@@ -67,7 +67,7 @@ def train(cfg: DictConfig):
 
     model = MyAwesomeModel().to(DEVICE)
     if(cloudrun==1):
-        proc_path = "/gcs/skkrt_data_bucket/processed/"
+        proc_path = "/gcs/skkrt_data_bucket/data/processed/"
         train_set, _ = corrupt_mnist(proc_path)
     else:
         train_set, _ = corrupt_mnist()
