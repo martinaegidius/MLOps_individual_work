@@ -7,9 +7,9 @@ RUN apt update && \
 
 COPY configs/ configs/
 COPY src/ src/
-COPY data/ data/
-COPY reports/ reports/
-COPY models/ models/
+# COPY data/ data/
+# COPY reports/ reports/
+# COPY models/ models/
 COPY requirements.txt requirements.txt
 COPY requirements_dev.txt requirements_dev.txt
 COPY README.md README.md
