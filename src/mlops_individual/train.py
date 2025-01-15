@@ -50,6 +50,8 @@ def train(cfg: DictConfig):
     batch_size = hyperparameters.batch_size
     epochs = hyperparameters.epochs
     seed = hyperparameters.seed
+    cloudrun = hyperparameters.cloud
+        
 
     logger.add(os.path.join(hydra_path, "my_logger_hydra.log"))
     logger.info(cfg)
@@ -64,7 +66,11 @@ def train(cfg: DictConfig):
     logger.info(f"{lr=}, {batch_size=}, {epochs=}")
 
     model = MyAwesomeModel().to(DEVICE)
-    train_set, _ = corrupt_mnist()
+    if(cloudrun==1):
+        proc_path = "/gcs/skkrt_data_bucket/"
+        train_set, _ = corrupt_mnist(proc_path)
+    else:
+        train_set, _ = corrupt_mnist()
     N_SAMPLES = len(train_set)
     print(N_SAMPLES)
     trainloader = DataLoader(train_set, batch_size=batch_size, shuffle=True)

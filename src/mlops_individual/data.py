@@ -5,6 +5,7 @@ import torch
 from torch.utils.data import Dataset, TensorDataset
 from hydra.utils import to_absolute_path #for resolving paths as originally for loading data
 import matplotlib.pyplot as plt 
+from typing import Optional 
 
 class MyDataset(Dataset):
     """My custom dataset."""
@@ -65,10 +66,11 @@ class MyDataset(Dataset):
         return
 
 
-def corrupt_mnist():
+def corrupt_mnist(proc_path: Optional[str] = None):
     """Return train and test dataloaders for corrupt MNIST."""
     # exchange with the corrupted mnist dataset
-    proc_path = "data/processed/"
+    if proc_path is None:
+        proc_path = "data/processed/"
     
     proc_path = to_absolute_path(proc_path)+"/"
     
@@ -81,6 +83,7 @@ def corrupt_mnist():
     test = TensorDataset(test_images, test_labels)
 
     return train, test
+
 
 
 def preprocess(raw_data_path: Path, output_folder: Path) -> None:
